@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Exploring the edge — John Morgan × KAI</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Manrope:wght@400;500;600;700;800&display=swap');
+  :root { --ink:#151c1a; --moss:#18493e; --sprout:#d9ef89; --cream:#f6f0e3; --rust:#ed6548; --sky:#b8e7ea; --muted:#50605b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--cream); color:var(--ink); font-family:Manrope,system-ui,sans-serif; overflow:hidden; }
+  #world { height:100svh; min-height:620px; position:relative; isolation:isolate; background:radial-gradient(circle at 23% 22%,#e9f6c0 0 3%,transparent 25%),radial-gradient(circle at 78% 76%,#c7f1e8 0,transparent 34%),var(--cream); }
+  .grain { position:absolute; inset:0; pointer-events:none; opacity:.16; z-index:5; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); mix-blend-mode:multiply; }
+  header { position:absolute; top:0; left:0; width:100%; z-index:8; display:flex; justify-content:space-between; align-items:flex-start; padding:30px clamp(22px,4vw,60px); pointer-events:none; }
+  .eyebrow, .progress-copy, .hint { font:500 11px/1.35 'DM Mono',monospace; letter-spacing:.08em; text-transform:uppercase; }
+  .brand { font:650 clamp(22px,2.3vw,34px)/1 Fraunces,serif; letter-spacing:-.04em; }
+  .topright { text-align:right; color:var(--moss); }
+  #progress { margin-top:9px; }
+  .title { position:absolute; z-index:2; top:50%; left:50%; translate:-50% -52%; width:min(760px,80vw); text-align:center; transition:opacity .4s ease; }
+  h1 { margin:0; font:650 clamp(48px,8.5vw,125px)/.85 Fraunces,serif; letter-spacing:-.075em; text-wrap:balance; }
+  .title p { max-width:500px; margin:26px auto 0; color:var(--muted); font-size:clamp(14px,1.5vw,18px); line-height:1.55; }
+  .hint { display:inline-flex; gap:8px; align-items:center; margin-top:25px; color:var(--moss); background:rgba(255,255,255,.55); padding:9px 12px; border-radius:999px; }
+  .dot { width:7px; height:7px; border-radius:50%; background:var(--rust); animation:pulse 1.6s infinite; }
+  @keyframes pulse { 50% { transform:scale(1.7); opacity:.45; } }
+  #fog { position:absolute; z-index:6; inset:0; width:100%; height:100%; cursor:crosshair; touch-action:none; }
+  .island { position:absolute; z-index:1; width:min(290px,34vw); padding:20px 21px 19px; background:rgba(255,255,255,.60); border:1px solid rgba(24,73,62,.15); box-shadow:0 12px 40px rgba(21,28,26,.07); opacity:0; transform:translateY(15px) rotate(var(--tilt)); transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1); }
+  .island.revealed { opacity:1; transform:translateY(0) rotate(var(--tilt)); }
+  .island .number { color:var(--rust); font:500 11px DM Mono,monospace; }
+  .island h2 { margin:8px 0 8px; font:650 clamp(22px,2.1vw,31px)/.95 Fraunces,serif; letter-spacing:-.045em; }
+  .island p { margin:0; color:#3d504a; font-size:13px; line-height:1.55; }
+  .i1 { left:7%; top:22%; --tilt:-3deg; }.i2 { right:8%; top:21%; --tilt:3deg; }.i3 { left:10%; bottom:11%; --tilt:2deg; }.i4 { right:9%; bottom:13%; --tilt:-2deg; }
+  #finish { position:absolute; z-index:10; inset:0; display:grid; place-items:center; background:rgba(24,73,62,.94); color:var(--cream); opacity:0; pointer-events:none; transition:opacity .75s ease; overflow:hidden; }
+  #finish.visible { opacity:1; pointer-events:auto; }
+  .sun { position:absolute; width:min(80vw,760px); aspect-ratio:1; border-radius:50%; background:repeating-conic-gradient(from 0deg, var(--sprout) 0 4deg, transparent 4deg 10deg); mask:radial-gradient(circle, transparent 0 19%,#000 19.4% 100%); -webkit-mask:radial-gradient(circle,transparent 0 19%,#000 19.4% 100%); animation:spin 22s linear infinite; opacity:.95; }
+  @keyframes spin { to { rotate:360deg; } }
+  .finish-copy { z-index:1; text-align:center; padding:20px; max-width:680px; }
+  .finish-copy .eyebrow { color:var(--sprout); }.finish-copy h2 { margin:14px 0; font:650 clamp(52px,9vw,120px)/.82 Fraunces,serif; letter-spacing:-.08em; }.finish-copy p { max-width:430px; margin:22px auto 0; font-size:clamp(15px,1.7vw,19px); line-height:1.55; }
+  .finish-copy a { color:var(--sprout); text-underline-offset:4px; font-weight:700; }
+  #skip { position:absolute; z-index:9; right:clamp(22px,4vw,60px); bottom:26px; color:var(--moss); border:1px solid rgba(24,73,62,.35); background:rgba(246,240,227,.75); padding:10px 13px; border-radius:999px; font:500 11px 'DM Mono',monospace; cursor:pointer; }
+  #skip:hover { background:white; }
+  @media(max-width:650px) { .island { width:calc(50vw - 30px); padding:14px; }.island h2{font-size:22px}.island p{font-size:11px}.i1{left:5%;top:19%}.i2{right:5%;top:23%}.i3{left:5%;bottom:13%}.i4{right:5%;bottom:14%}.title{width:86vw}.title p{font-size:14px} }
+  @media(prefers-reduced-motion:reduce) { *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;} }
+</style>
+</head>
+<body>
+<main id="world">
+  <div class="grain"></div>
+  <header><div><div class="eyebrow">Kellogg AI Club · Education & Skill Building</div><div class="brand">John Morgan × KAI</div></div><div class="topright"><div class="eyebrow">Explore the map</div><div id="progress" class="progress-copy">0 / 4 signals found</div></div></header>
+  <section class="title" id="title"><h1>The edge is<br>not a place.<br>It’s a practice.</h1><p>AI moves too quickly for any one person to know it all. Drag through the fog to uncover how I’d learn—and help KAI learn—by building.</p><div class="hint"><span class="dot"></span> drag anywhere to explore</div></section>
+  <article class="island i1" data-key="craft"><div class="number">01 / BUILD</div><h2>I bring the builder’s lens.</h2><p>From Google Search to leading a 3→15-person engineering & QA team at ManageXR, I’ve learned that the best way to understand a new tool is to put it to work on a real problem.</p></article>
+  <article class="island i2" data-key="learn"><div class="number">02 / LEARN</div><h2>I’m deliberately unfinished.</h2><p>I use AI every day in engineering and customer-support workflows. But I’m hungry to strengthen my weak spots: AI for marketing, business, strategy, and the work that reaches people.</p></article>
+  <article class="island i3" data-key="teach"><div class="number">03 / SHARE</div><h2>Turn experiments into skills.</h2><p>I’d help create compact, practical sessions: build-together labs, cross-functional AI playbooks, and feedback loops that turn one person’s experiment into a useful capability for the room.</p></article>
+  <article class="island i4" data-key="venture"><div class="number">04 / CONTRIBUTE</div><h2>A JV with a useful constraint.</h2><p>I’m a Joint Venture—not a degree student—so I don’t have the shiny Kellogg email for outreach. I’ll earn trust through useful programming, follow-through, and bringing an outside builder’s network into the work.</p></article>
+  <canvas id="fog" aria-label="Interactive fog of war. Drag or move the pointer around to reveal four parts of John Morgan's application."></canvas>
+  <button id="skip" type="button">Reveal all ↗</button>
+  <section id="finish" aria-live="polite"><div class="sun"></div><div class="finish-copy"><div class="eyebrow">Map revealed</div><h2>Let’s build<br>at the edge.</h2><p>I’m stoked to be part of KAI: learning out loud, making the work practical, and bringing more people into what AI can do.</p><a href="https://johnmorgan.tech" target="_blank" rel="noreferrer">johnmorgan.tech ↗</a></div></section>
+</main>
+<script>
+(() => {
+ const canvas=document.querySelector('#fog'),ctx=canvas.getContext('2d'),world=document.querySelector('#world');
+ const islands=[...document.querySelectorAll('.island')], seen=new Set(); let dpr=1, drawing=false, last={x:0,y:0}, finished=false;
+ function size(){dpr=Math.min(devicePixelRatio||1,2); canvas.width=innerWidth*dpr;canvas.height=innerHeight*dpr;canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';ctx.setTransform(dpr,0,0,dpr,0,0);paintFog();}
+ function paintFog(){ctx.globalCompositeOperation='source-over';ctx.fillStyle='#18493e';ctx.fillRect(0,0,innerWidth,innerHeight);ctx.fillStyle='rgba(22,40,35,.48)'; for(let x=0;x<innerWidth;x+=22) for(let y=0;y<innerHeight;y+=22){if(((x/22+y/22)%3)===0)ctx.fillRect(x,y,1,1);} }
+ function clear(x,y,r=105){ctx.globalCompositeOperation='destination-out';const g=ctx.createRadialGradient(x,y,4,x,y,r);g.addColorStop(0,'rgba(0,0,0,.99)');g.addColorStop(.55,'rgba(0,0,0,.75)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.globalCompositeOperation='source-over'; detect(x,y,r);}
+ function detect(x,y,r){ islands.forEach((el,index)=>{const b=el.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2; if(Math.hypot(cx-x,cy-y)<r+Math.max(b.width,b.height)*.28&&!seen.has(index)){seen.add(index);el.classList.add('revealed');document.querySelector('#progress').textContent=`${seen.size} / 4 signals found`;if(seen.size===4)setTimeout(reveal,650);}}); }
+ function point(e){const r=canvas.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
+ function move(e){const p=point(e); if(!drawing&&e.type!=='pointermove')return; const dx=p.x-last.x,dy=p.y-last.y,dist=Math.hypot(dx,dy), steps=Math.max(1,Math.ceil(dist/24)); for(let i=1;i<=steps;i++)clear(last.x+dx*i/steps,last.y+dy*i/steps);last=p;}
+ function reveal(){if(finished)return;finished=true; islands.forEach(e=>e.classList.add('revealed'));canvas.style.pointerEvents='none';document.querySelector('#title').style.opacity='0';document.querySelector('#skip').style.display='none';document.querySelector('#progress').textContent='4 / 4 signals found';document.querySelector('#finish').classList.add('visible');}
+ canvas.addEventListener('pointerdown',e=>{drawing=true;canvas.setPointerCapture(e.pointerId);last=point(e);clear(last.x,last.y);});canvas.addEventListener('pointermove',e=>{if(drawing||e.pointerType==='mouse'){if(!drawing)last=point(e);move(e);}});canvas.addEventListener('pointerup',()=>drawing=false);canvas.addEventListener('pointerleave',()=>drawing=false);document.querySelector('#skip').onclick=reveal; addEventListener('resize',size);size();
+})();
+</script>
+</body></html>
