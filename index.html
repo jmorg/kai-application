@@ -38,7 +38,15 @@
   #close-finish { position:absolute; z-index:2; top:26px; right:clamp(22px,4vw,60px); min-width:44px; min-height:44px; padding:0 13px; border:1px solid rgba(255,255,255,.6); border-radius:999px; background:rgba(16,45,39,.35); color:#fff; font:500 11px 'DM Mono',monospace; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; } #close-finish:hover { background:rgba(255,255,255,.16); } #close-finish:focus-visible { outline:3px solid var(--sprout); outline-offset:3px; }
   #skip { position:absolute; z-index:9; right:clamp(22px,4vw,60px); bottom:26px; color:var(--moss); border:1px solid rgba(24,73,62,.35); background:rgba(246,240,227,.75); padding:10px 13px; border-radius:999px; font:500 11px 'DM Mono',monospace; cursor:pointer; }
   #skip:hover { background:white; }
-  @media(max-width:650px) { .island { width:calc(50vw - 30px); padding:14px; }.island h2{font-size:22px}.island p{font-size:11px}.i1{left:5%;top:19%}.i2{right:5%;top:23%}.i3{left:5%;bottom:13%}.i4{right:5%;bottom:14%}.title{width:86vw}.title p{font-size:14px} }
+  @media(max-width:650px) {
+    body { overflow-x:hidden; overflow-y:auto; }
+    #world { width:100%; height:1450px; min-height:1450px; overflow:hidden; }
+    header { padding:18px 22px; } header .topright { display:none; } .brand { font-size:24px; } .eyebrow,.progress-copy { font-size:9px; }
+    .title { top:180px; translate:-50% -50%; width:346px; max-width:calc(100% - 44px); } .title h1 { font-size:46px; overflow-wrap:anywhere; } .title p { margin-top:18px; font-size:14px; }
+    .island { width:346px; max-width:calc(100% - 44px); left:50%; right:auto; padding:19px 20px; transform:translateX(-50%) translateY(15px) rotate(var(--tilt)); } .island.revealed { transform:translateX(-50%) translateY(0) rotate(var(--tilt)); } .island h2{font-size:clamp(22px,6vw,26px);overflow-wrap:anywhere}.island p{font-size:14px;line-height:1.5;overflow-wrap:anywhere}.i1{top:335px;bottom:auto}.i2{top:620px;bottom:auto}.i3{top:950px;bottom:auto}.i4{top:1180px;bottom:auto}
+    #fog { touch-action:pan-y; } #skip { position:fixed; right:18px; bottom:18px; z-index:12; }
+    #finish { position:fixed; } .sun { width:min(86vw,440px); } .finish-copy { width:calc(100vw - 36px); padding:34px 25px; } .finish-copy h2 { font-size:56px; } #close-finish { top:16px; right:18px; }
+  }
   @media(prefers-reduced-motion:reduce) { *,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important;} }
 </style>
 </head>
@@ -59,8 +67,8 @@
 (() => {
  const canvas=document.querySelector('#fog'),ctx=canvas.getContext('2d'),world=document.querySelector('#world');
  const islands=[...document.querySelectorAll('.island')], seen=new Set(); let dpr=1, drawing=false, last={x:0,y:0}, finished=false;
- function size(){dpr=Math.min(devicePixelRatio||1,2); canvas.width=innerWidth*dpr;canvas.height=innerHeight*dpr;canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';ctx.setTransform(dpr,0,0,dpr,0,0);paintFog();}
- function paintFog(){ctx.globalCompositeOperation='source-over';ctx.fillStyle='#18493e';ctx.fillRect(0,0,innerWidth,innerHeight);ctx.fillStyle='rgba(22,40,35,.48)'; for(let x=0;x<innerWidth;x+=22) for(let y=0;y<innerHeight;y+=22){if(((x/22+y/22)%3)===0)ctx.fillRect(x,y,1,1);} }
+ function size(){const w=world.clientWidth,h=world.clientHeight;dpr=Math.min(devicePixelRatio||1,2); canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.width=w+'px';canvas.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);paintFog();}
+ function paintFog(){const w=world.clientWidth,h=world.clientHeight;ctx.globalCompositeOperation='source-over';ctx.fillStyle='#18493e';ctx.fillRect(0,0,w,h);ctx.fillStyle='rgba(22,40,35,.48)'; for(let x=0;x<w;x+=22) for(let y=0;y<h;y+=22){if(((x/22+y/22)%3)===0)ctx.fillRect(x,y,1,1);} }
  function clear(x,y,r=105){ctx.globalCompositeOperation='destination-out';const g=ctx.createRadialGradient(x,y,4,x,y,r);g.addColorStop(0,'rgba(0,0,0,.99)');g.addColorStop(.55,'rgba(0,0,0,.75)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.globalCompositeOperation='source-over'; detect(x,y,r);}
  function detect(x,y,r){ islands.forEach((el,index)=>{const b=el.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2; if(Math.hypot(cx-x,cy-y)<r+Math.max(b.width,b.height)*.28&&!seen.has(index)){seen.add(index);el.classList.add('revealed');document.querySelector('#progress').textContent=`${seen.size} / 4 signals found`;if(seen.size===4)setTimeout(reveal,5000);}}); }
  function point(e){const r=canvas.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
