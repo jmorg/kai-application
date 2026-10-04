@@ -42,8 +42,8 @@
     body { overflow:hidden; }
     #world { width:auto; height:100svh; min-height:620px; overflow:hidden; }
     header { padding:20px 22px; } header .topright { display:block; } .brand { font-size:24px; } .eyebrow,.progress-copy { font-size:9px; }
-    .title { top:50%; width:86vw; } .title h1 { font-size:clamp(42px,12vw,62px); } .title p { margin-top:18px; font-size:13px; }
-    .island { width:calc(50vw - 42px); padding:11px 12px 12px; } .island h2{font-size:clamp(14px,4.4vw,20px);line-height:.96;overflow-wrap:anywhere}.island p{font-size:clamp(8.5px,2.35vw,10.5px);line-height:1.35;overflow-wrap:anywhere}.i1{left:5%;top:19%;bottom:auto}.i2{left:auto;right:5%;top:19%;bottom:auto}.i3{left:5%;top:auto;bottom:6%}.i4{left:auto;right:5%;top:auto;bottom:6%}
+    .title { top:60%; width:86vw; } .title h1 { font-size:clamp(38px,10vw,52px); } .title p { margin-top:18px; font-size:13px; }
+    .island { width:calc(50vw - 42px); padding:11px 12px 12px; } .island h2{font-size:clamp(14px,4.4vw,20px);line-height:.96;overflow-wrap:anywhere}.island p{font-size:clamp(8.5px,2.35vw,10.5px);line-height:1.35;overflow-wrap:anywhere}.i1{left:5%;top:15%;bottom:auto}.i2{left:auto;right:5%;top:15%;bottom:auto}.i3{left:5%;top:auto;bottom:4%}.i4{left:auto;right:5%;top:auto;bottom:4%}
     #fog { touch-action:none; } #skip { position:absolute; right:18px; bottom:18px; z-index:9; }
     #finish { position:absolute; } .sun { width:min(80vw,560px); } .finish-copy { width:min(680px,calc(100vw - 44px)); padding:28px 20px; } .finish-copy h2 { font-size:clamp(48px,13vw,72px); } #close-finish { top:16px; right:18px; }
   }
@@ -66,13 +66,14 @@
 <script>
 (() => {
  const canvas=document.querySelector('#fog'),ctx=canvas.getContext('2d'),world=document.querySelector('#world');
- const islands=[...document.querySelectorAll('.island')], seen=new Set(); let dpr=1, drawing=false, last={x:0,y:0}, finished=false;
+ const islands=[...document.querySelectorAll('.island')], seen=new Set(); let dpr=1, drawing=false, started=false, last={x:0,y:0}, finished=false;
+ function startExplore(){if(started)return;started=true;document.querySelector('#title').style.opacity='0';document.querySelector('#title').style.pointerEvents='none';}
  function size(){dpr=Math.min(devicePixelRatio||1,2); canvas.width=innerWidth*dpr;canvas.height=innerHeight*dpr;canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';ctx.setTransform(dpr,0,0,dpr,0,0);paintFog();}
  function paintFog(){ctx.globalCompositeOperation='source-over';ctx.fillStyle='#18493e';ctx.fillRect(0,0,innerWidth,innerHeight);ctx.fillStyle='rgba(22,40,35,.48)'; for(let x=0;x<innerWidth;x+=22) for(let y=0;y<innerHeight;y+=22){if(((x/22+y/22)%3)===0)ctx.fillRect(x,y,1,1);} }
  function clear(x,y,r=105){ctx.globalCompositeOperation='destination-out';const g=ctx.createRadialGradient(x,y,4,x,y,r);g.addColorStop(0,'rgba(0,0,0,.99)');g.addColorStop(.55,'rgba(0,0,0,.75)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.globalCompositeOperation='source-over'; detect(x,y,r);}
  function detect(x,y,r){ islands.forEach((el,index)=>{const b=el.getBoundingClientRect(),cx=b.left+b.width/2,cy=b.top+b.height/2; if(Math.hypot(cx-x,cy-y)<r+Math.max(b.width,b.height)*.28&&!seen.has(index)){seen.add(index);el.classList.add('revealed');document.querySelector('#progress').textContent=`${seen.size} / 4 signals found`;if(seen.size===4)setTimeout(reveal,5000);}}); }
  function point(e){const r=canvas.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top};}
- function move(e){const p=point(e); if(!drawing&&e.type!=='pointermove')return; const dx=p.x-last.x,dy=p.y-last.y,dist=Math.hypot(dx,dy), steps=Math.max(1,Math.ceil(dist/24)); for(let i=1;i<=steps;i++)clear(last.x+dx*i/steps,last.y+dy*i/steps);last=p;}
+ function move(e){startExplore();const p=point(e); if(!drawing&&e.type!=='pointermove')return; const dx=p.x-last.x,dy=p.y-last.y,dist=Math.hypot(dx,dy), steps=Math.max(1,Math.ceil(dist/24)); for(let i=1;i<=steps;i++)clear(last.x+dx*i/steps,last.y+dy*i/steps);last=p;}
  function showFinish(){document.querySelector('#finish').classList.add('visible');document.querySelector('#skip').style.display='none';document.querySelector('#close-finish').focus();}
  function reveal(){if(finished)return;finished=true; islands.forEach(e=>e.classList.add('revealed'));canvas.style.pointerEvents='none';document.querySelector('#title').style.opacity='0';document.querySelector('#progress').textContent='4 / 4 signals found';showFinish();}
  function dismiss(){document.querySelector('#finish').classList.remove('visible');const replay=document.querySelector('#skip');replay.textContent='Replay celebration ↗';replay.style.display='block';replay.onclick=showFinish;}
